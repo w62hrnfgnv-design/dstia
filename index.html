@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#08101d">
+  <title>Tia × Dustin 星际搭档</title>
+  <style>
+    :root{
+      --bg:#07101c;--panel:#0e1b30;--panel2:#152744;--text:#f7f9ff;
+      --muted:#aeb9d0;--blue:#78a8ff;--pink:#f5a4d4;--green:#72dfb3;
+      --danger:#ff8f98;--border:rgba(255,255,255,.13)
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;
+      background:
+      radial-gradient(circle at 10% 5%,rgba(120,168,255,.22),transparent 30%),
+      radial-gradient(circle at 90% 8%,rgba(245,164,212,.18),transparent 30%),
+      linear-gradient(180deg,#07101c,#0a1424 60%,#07101b)}
+    button{font:inherit}.page{width:min(1080px,calc(100% - 24px));margin:auto;padding:24px 0 40px}
+    .card{border:1px solid var(--border);background:rgba(14,27,48,.93);
+      border-radius:26px;box-shadow:0 24px 70px rgba(0,0,0,.38);backdrop-filter:blur(16px)}
+    .hero{display:grid;grid-template-columns:1.45fr .75fr;gap:16px;margin-bottom:16px}
+    .hero-main{padding:28px;position:relative;overflow:hidden}
+    .hero-main:after{content:"T+D";position:absolute;right:18px;bottom:-28px;font-size:100px;
+      font-weight:900;letter-spacing:-10px;color:rgba(255,255,255,.045)}
+    .eyebrow{color:var(--pink);text-transform:uppercase;letter-spacing:.12em;font-size:13px;font-weight:800}
+    h1{font-size:clamp(38px,7vw,68px);line-height:.98;letter-spacing:-.055em;margin:10px 0 14px}
+    .hero p{color:var(--muted);font-size:17px;line-height:1.7;margin:0}
+    .duo-card{padding:20px;display:flex;flex-direction:column;justify-content:center;gap:12px}
+    .duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .person{border:1px solid var(--border);background:var(--panel2);border-radius:20px;padding:14px;text-align:center}
+    .avatar{width:54px;height:54px;margin:0 auto 8px;border-radius:50%;display:grid;place-items:center;font-weight:900}
+    .tia .avatar{background:rgba(245,164,212,.18);color:var(--pink)}
+    .dustin .avatar{background:rgba(120,168,255,.18);color:var(--blue)}
+    .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+    .stat{padding:15px;border:1px solid var(--border);background:var(--panel2);border-radius:18px}
+    .label{color:var(--muted);font-size:13px}.value{font-size:24px;font-weight:850;margin-top:4px}
+    #power{font-size:15px;padding-top:8px}.game-card{padding:16px}
+    .toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+    .toolbar h2{margin:0 0 4px}.toolbar p{margin:0;color:var(--muted);font-size:14px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{border:1px solid var(--border);color:var(--text);background:rgba(255,255,255,.06);
+      border-radius:14px;padding:11px 16px;cursor:pointer;transition:.15s}
+    .btn:hover{background:rgba(255,255,255,.1)}.btn:active{transform:scale(.97)}
+    .btn.primary{border:0;color:#07101c;font-weight:800;background:linear-gradient(135deg,var(--blue),var(--pink))}
+    .game-wrap{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:22px;background:#050a12}
+    canvas{display:block;width:100%;height:auto;aspect-ratio:700/460;touch-action:none}
+    .overlay{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;
+      background:rgba(5,10,18,.74);backdrop-filter:blur(5px)}
+    .overlay.hidden{display:none}.overlay-box{max-width:470px;padding:24px;border:1px solid var(--border);
+      border-radius:22px;background:rgba(14,27,48,.88)}
+    .overlay h3{margin:0 0 8px;font-size:28px}.overlay p{margin:0;color:var(--muted);line-height:1.6}
+    .mobile{display:none;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+    .tips{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+    .tip{border:1px solid var(--border);border-radius:16px;background:rgba(255,255,255,.035);
+      padding:13px;color:var(--muted);font-size:14px;line-height:1.5}.tip strong{color:var(--text)}
+    .message{min-height:24px;margin-top:12px;color:var(--muted);font-size:14px}
+    footer{text-align:center;color:var(--muted);font-size:13px;padding-top:18px}
+    @media(max-width:760px){
+      .hero{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}
+      .stats .stat:last-child{grid-column:1/-1}.tips{grid-template-columns:1fr}.mobile{display:grid}
+      .hero-main{padding:22px}.game-card{padding:10px}
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+  <section class="hero">
+    <div class="card hero-main">
+      <div class="eyebrow">A tiny game made for two</div>
+      <h1>Tia × Dustin<br>星际搭档</h1>
+      <p>一起驾驶双人飞船，收集 Tia 和 Dustin 徽章，躲过陨石。集齐一对徽章，会触发 5 秒“搭档护盾”。</p>
+    </div>
+    <aside class="card duo-card">
+      <div style="color:var(--muted);font-size:14px">Crew members</div>
+      <div class="duo">
+        <div class="person tia"><div class="avatar">T</div><strong>Tia</strong><div style="color:var(--muted);font-size:13px">星光导航员</div></div>
+        <div class="person dustin"><div class="avatar">D</div><strong>Dustin</strong><div style="color:var(--muted);font-size:13px">护盾驾驶员</div></div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><div class="label">分数</div><div class="value" id="score">0</div></div>
+    <div class="stat"><div class="label">最高分</div><div class="value" id="best">0</div></div>
+    <div class="stat"><div class="label">生命</div><div class="value" id="lives">3</div></div>
+    <div class="stat"><div class="label">徽章</div><div class="value"><span id="tia">0</span> + <span id="dustin">0</span></div></div>
+    <div class="stat"><div class="label">搭档状态</div><div class="value" id="power">等待出发</div></div>
+  </section>
+
+  <section class="card game-card">
+    <div class="toolbar">
+      <div><h2>星际闪避任务</h2><p>电脑：← → 或 A / D；手机：拖动飞船或使用下方按钮。</p></div>
+      <div class="actions">
+        <button class="btn primary" id="start">开始游戏</button>
+        <button class="btn" id="pause">暂停</button>
+        <button class="btn" id="restart">重新开始</button>
+      </div>
+    </div>
+
+    <div class="game-wrap">
+      <canvas id="game" width="700" height="460"></canvas>
+      <div class="overlay" id="overlay">
+        <div class="overlay-box">
+          <h3 id="overlayTitle">Tia 和 Dustin 准备出发</h3>
+          <p id="overlayText">收集两个名字徽章，开启搭档护盾。点击“开始游戏”进入星际任务。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile">
+      <button class="btn" id="left">← 左移</button>
+      <button class="btn" id="mobilePause">暂停</button>
+      <button class="btn" id="right">右移 →</button>
+    </div>
+
+    <div class="tips">
+      <div class="tip"><strong>Tia 徽章</strong><br>粉色 T，收集后 +10 分。</div>
+      <div class="tip"><strong>Dustin 徽章</strong><br>蓝色 D，收集后 +10 分。</div>
+      <div class="tip"><strong>Twin Power</strong><br>集齐一对后获得 5 秒无敌，并额外 +30 分。</div>
+    </div>
+    <div class="message" id="message">提示：坚持越久，陨石会越来越快。</div>
+  </section>
+  <footer>Made for Tia × Dustin · Twin Power Forever</footer>
+</main>
+
+<script>
+const c=document.getElementById("game"),x=c.getContext("2d");
+const scoreEl=document.getElementById("score"),bestEl=document.getElementById("best"),
+livesEl=document.getElementById("lives"),tiaEl=document.getElementById("tia"),
+dustinEl=document.getElementById("dustin"),powerEl=document.getElementById("power"),
+overlay=document.getElementById("overlay"),overlayTitle=document.getElementById("overlayTitle"),
+overlayText=document.getElementById("overlayText"),message=document.getElementById("message");
+
+let running=false,paused=false,last=0,raf=0,score=0,lives=3,tia=0,dustin=0,best=0;
+let meteorTimer=0,badgeTimer=0,shield=0,left=false,right=false;
+const ship={x:329,y:390,w:42,h:48,speed:350};
+let meteors=[],badges=[],particles=[];
+
+function reset(){
+  score=0;lives=3;tia=0;dustin=0;shield=0;meteorTimer=0;badgeTimer=0;
+  ship.x=c.width/2-ship.w/2;meteors=[];badges=[];particles=[];paused=false;
+  updateUI();draw();
+}
+function updateUI(){
+  scoreEl.textContent=Math.floor(score);bestEl.textContent=Math.floor(best);
+  livesEl.textContent=lives;tiaEl.textContent=tia;dustinEl.textContent=dustin;
+  powerEl.textContent=shield>0?`Twin Power ${shield.toFixed(1)}s`:"普通状态";
+  powerEl.style.color=shield>0?"var(--green)":"var(--text)";
+}
+function start(){
+  if(!running) reset();
+  running=true;paused=false;overlay.classList.add("hidden");last=performance.now();
+  cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+}
+function restart(){running=false;reset();start()}
+function togglePause(){
+  if(!running)return;
+  paused=!paused;
+  if(paused){overlayTitle.textContent="任务暂停";overlayText.textContent="按空格或暂停按钮继续。";overlay.classList.remove("hidden")}
+  else{overlay.classList.add("hidden");last=performance.now();raf=requestAnimationFrame(loop)}
+}
+function end(){
+  running=false;best=Math.max(best,score);updateUI();
+  overlayTitle.textContent="任务结束";
+  overlayText.textContent=`最终得分 ${Math.floor(score)}。Tia 和 Dustin 下次一定能飞得更远。`;
+  overlay.classList.remove("hidden");message.textContent="点击“重新开始”再次挑战。";
+}
+function overlap(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function spawnMeteor(){
+  const s=24+Math.random()*35;
+  meteors.push({x:Math.random()*(c.width-s),y:-s,w:s,h:s,v:150+Math.random()*150+score*.3,r:Math.random()*6,spin:(Math.random()-.5)*3});
+}
+function spawnBadge(){
+  const type=Math.random()<.5?"T":"D",s=30;
+  badges.push({type,x:Math.random()*(c.width-s),y:-s,w:s,h:s,v:115+Math.random()*65,p:Math.random()*6});
+}
+function burst(px,py,color,n=14){
+  for(let i=0;i<n;i++)particles.push({x:px,y:py,vx:(Math.random()-.5)*190,vy:(Math.random()-.5)*190,l:.8+Math.random()*.5,color});
+}
+function twinPowerCheck(){
+  if(tia>0&&dustin>0){tia--;dustin--;shield=5;score+=30;
+    burst(ship.x+ship.w/2,ship.y+ship.h/2,"#ffffff",32);
+    message.textContent="Tia × Dustin Forever! Twin Power 已启动，5 秒无敌！";
+  }
+}
+function update(dt){
+  if(left)ship.x-=ship.speed*dt;if(right)ship.x+=ship.speed*dt;
+  ship.x=Math.max(0,Math.min(c.width-ship.w,ship.x));
+  score+=dt*5;meteorTimer+=dt;badgeTimer+=dt;if(shield>0)shield=Math.max(0,shield-dt);
+  if(meteorTimer>Math.max(.34,.9-score/700)){meteorTimer=0;spawnMeteor()}
+  if(badgeTimer>1.8){badgeTimer=0;spawnBadge()}
+  meteors.forEach(m=>{m.y+=m.v*dt;m.r+=m.spin*dt});
+  badges.forEach(b=>{b.y+=b.v*dt;b.p+=dt*5});
+  particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.l-=dt});
+
+  for(let i=meteors.length-1;i>=0;i--){
+    const m=meteors[i];
+    if(overlap(ship,m)){
+      meteors.splice(i,1);
+      if(shield>0){score+=5;burst(m.x+m.w/2,m.y+m.h/2,"#72dfb3",18);message.textContent="Twin Power 挡住了陨石！"}
+      else{lives--;burst(ship.x+ship.w/2,ship.y+ship.h/2,"#ff8f98",22);message.textContent=`飞船受损，还剩 ${lives} 条生命。`;if(lives<=0){end();return}}
+    }else if(m.y>c.height+60)meteors.splice(i,1);
+  }
+  for(let i=badges.length-1;i>=0;i--){
+    const b=badges[i];
+    if(overlap(ship,b)){
+      badges.splice(i,1);score+=10;
+      if(b.type==="T"){tia++;burst(b.x,b.y,"#f5a4d4");message.textContent="收集到 Tia 徽章，+10 分！"}
+      else{dustin++;burst(b.x,b.y,"#78a8ff");message.textContent="收集到 Dustin 徽章，+10 分！"}
+      twinPowerCheck();
+    }else if(b.y>c.height+50)badges.splice(i,1);
+  }
+  particles=particles.filter(p=>p.l>0);best=Math.max(best,score);updateUI();
+}
+function bg(){
+  x.clearRect(0,0,c.width,c.height);
+  const g=x.createLinearGradient(0,0,0,c.height);g.addColorStop(0,"#07101d");g.addColorStop(1,"#050912");
+  x.fillStyle=g;x.fillRect(0,0,c.width,c.height);
+  x.fillStyle="#fff";
+  for(let i=0;i<60;i++){const sx=(i*97)%c.width,sy=(i*53+performance.now()*.015)%c.height;
+    x.globalAlpha=.18+(i%5)*.1;x.fillRect(sx,sy,1.5,1.5)}
+  x.globalAlpha=1;
+}
+function drawShip(){
+  x.save();x.translate(ship.x+ship.w/2,ship.y+ship.h/2);
+  if(shield>0){x.strokeStyle="rgba(114,223,179,.9)";x.lineWidth=4;x.beginPath();x.arc(0,0,34+Math.sin(performance.now()*.01)*2,0,Math.PI*2);x.stroke()}
+  const grad=x.createLinearGradient(-20,-20,20,25);grad.addColorStop(0,"#f5a4d4");grad.addColorStop(1,"#78a8ff");
+  x.fillStyle=grad;x.beginPath();x.moveTo(0,-24);x.lineTo(21,22);x.lineTo(0,14);x.lineTo(-21,22);x.closePath();x.fill();
+  x.fillStyle="#dff0ff";x.beginPath();x.arc(0,1,7,0,Math.PI*2);x.fill();
+  x.fillStyle="#72dfb3";x.beginPath();x.moveTo(-7,19);x.lineTo(0,34+Math.random()*5);x.lineTo(7,19);x.fill();
+  x.restore();
+}
+function drawMeteor(m){
+  x.save();x.translate(m.x+m.w/2,m.y+m.h/2);x.rotate(m.r);x.fillStyle="#788399";x.beginPath();
+  for(let i=0;i<9;i++){const a=i*Math.PI*2/9,r=m.w/2*(.78+Math.random()*.22),px=Math.cos(a)*r,py=Math.sin(a)*r;i?x.lineTo(px,py):x.moveTo(px,py)}
+  x.closePath();x.fill();x.restore();
+}
+function drawBadge(b){
+  x.save();x.translate(b.x+b.w/2,b.y+b.h/2);const s=1+Math.sin(b.p)*.08;x.scale(s,s);
+  x.fillStyle=b.type==="T"?"#f5a4d4":"#78a8ff";x.beginPath();x.arc(0,0,15,0,Math.PI*2);x.fill();
+  x.fillStyle="#07101c";x.font="900 17px system-ui";x.textAlign="center";x.textBaseline="middle";x.fillText(b.type,0,1);x.restore();
+}
+function drawParticles(){
+  particles.forEach(p=>{x.globalAlpha=Math.max(0,p.l);x.fillStyle=p.color;x.fillRect(p.x,p.y,4,4)});x.globalAlpha=1;
+}
+function draw(){bg();badges.forEach(drawBadge);meteors.forEach(drawMeteor);drawShip();drawParticles()}
+function loop(now){
+  if(!running||paused)return;const dt=Math.min((now-last)/1000,.033);last=now;update(dt);draw();
+  if(running&&!paused)raf=requestAnimationFrame(loop);
+}
+function moveTo(clientX){
+  const r=c.getBoundingClientRect();ship.x=(clientX-r.left)*(c.width/r.width)-ship.w/2;
+  ship.x=Math.max(0,Math.min(c.width-ship.w,ship.x));
+}
+document.getElementById("start").addEventListener("click",start);
+document.getElementById("pause").addEventListener("click",togglePause);
+document.getElementById("restart").addEventListener("click",restart);
+document.getElementById("mobilePause").addEventListener("click",togglePause);
+for(const [id,dir] of [["left","left"],["right","right"]]){
+  const el=document.getElementById(id);
+  el.addEventListener("pointerdown",()=>dir==="left"?left=true:right=true);
+  ["pointerup","pointerleave","pointercancel"].forEach(ev=>el.addEventListener(ev,()=>dir==="left"?left=false:right=false));
+}
+addEventListener("keydown",e=>{
+  if(e.key==="ArrowLeft"||e.key.toLowerCase()==="a")left=true;
+  if(e.key==="ArrowRight"||e.key.toLowerCase()==="d")right=true;
+  if(e.code==="Space"){e.preventDefault();togglePause()}
+});
+addEventListener("keyup",e=>{
+  if(e.key==="ArrowLeft"||e.key.toLowerCase()==="a")left=false;
+  if(e.key==="ArrowRight"||e.key.toLowerCase()==="d")right=false;
+});
+c.addEventListener("pointerdown",e=>{if(!running)start();moveTo(e.clientX);c.setPointerCapture(e.pointerId)});
+c.addEventListener("pointermove",e=>{if(e.buttons)moveTo(e.clientX)});
+reset();
+</script>
+</body>
+</html>
